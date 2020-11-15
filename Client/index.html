@@ -1,0 +1,188 @@
+<html>
+<head>
+    <title>Sharjeel's Marksheet EP1850089</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-image: url('bgimg.webp');
+            padding-top: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            border-radius: 2px;
+            border: 0.5px;
+            border-style: groove;
+            border-color: royalblue;
+            padding: 3px 8px 3px 8px;
+            cursor: crosshair;
+            background-color: lightyellow;
+        }
+
+        .btn:hover {
+            border: 1px solid lightseagreen;
+            box-shadow: gray 2px 2px 4px;
+        }
+
+        .inp {
+            text-align: center;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Marksheet</h1>
+    <div align="center">
+        <table>
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <span>Enter the name of student :</span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="nameOfStudent" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Enter the number of subjects : </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="number" id="noOfSubjects" min="1" onchange="UIPopulate()"
+                                    onkeyup="UIPopulate()" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span onclick="Calculate()" class="btn">Calculate</span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <span>Min Marks Subject: </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="minMarksSubject" readonly="readonly" />
+                            </td>
+                            <td>
+                                <span>Min Marks: </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="minMarks" readonly="readonly" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Max Marks Subject: </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="maxMarksSubject" readonly="readonly" />
+                            </td>
+                            <td>
+                                <span>Max Marks: </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="maxMarks" readonly="readonly" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Percentage : </span>
+                            </td>
+                            <td>
+                                <input class="inp" type="text" id="percentage" readonly="readonly" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr />
+    <div>
+        <table id="inputTable"></table>
+    </div>
+</body>
+<script>
+    function Calculate() {
+        //YOUR CODE GOES HERE
+        var subjectsList = [];
+        var numOfSubjects = $("#noOfSubjects").val();
+
+        for (i = 0; i < numOfSubjects; i++) {
+            subjectName = $("#subjectName" + i).val();
+            subjectMarksObtained = $("#subjectMarksObtained" + i).val();
+
+            var subject = new Object();
+            subject.Name = subjectName;
+            subject.ObtainedMarks = subjectMarksObtained;
+
+            subjectsList.push(subject);
+        }
+
+        var subjectsStr = JSON.stringify(subjectsList);
+        console.log(subjectsStr);
+
+        $.ajax({
+            method: "GET",
+            url: "https://localhost:44317/Marksheet.asmx/Calculate",
+            contentType: "application/JSON",
+            data: {
+                request: subjectsStr,
+            },
+            success: function (result) {
+                var data = JSON.parse(result.d);
+                $("#minMarksSubject").val(data.MinSubjectMarks);
+                $("#maxMarksSubject").val(data.MaxSubjectMarks);
+                $("#minMarks").val(data.MinMarks);
+                $("#maxMarks").val(data.MaxMarks);
+                $("#percentage").val((data.Percentage));
+            },
+        });
+    }
+
+    function UIPopulate() {
+        var noOfSubjects = $("#noOfSubjects").val();
+
+        var h = "";
+        for (i = 0; i < noOfSubjects; i++) {
+            h += "<tr>";
+
+            h += "<td>";
+            h += "<span>Subject " + (i + 1) + " -> </span>";
+            h += "</td>";
+
+            h += "<td>";
+            h += "<span>Name :</span>";
+            h += "</td>";
+
+            h += "<td>";
+            h += '<input type="text" id="subjectName' + i + '"/>';
+            h += "</td>";
+
+            h += "<td>";
+            h += "<span>Marks Obtained :</span>";
+            h += "</td>";
+
+            h += "<td>";
+            h +=
+                '<input type="number" min="0" max="100" id="subjectMarksObtained' +
+                i +
+                '"/>';
+            h += "</td>";
+
+            h += "</tr>";
+        }
+
+        $("#inputTable").html(h);
+    }
+</script>
+
+</html>
